@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8"><title> Preguntas </title>
+    <meta charset="utf-8">
+    <title> Preguntas </title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
     <link rel='stylesheet'
 	  type='text/css'
@@ -26,6 +27,15 @@
       </nav>
 
       <section class="main" id="s1">
+	<% if(errors.length) { %>
+	<span id="ErrorMsgs">
+	  Corregir errores:<br/>
+	  <% for(var i in errors) { %>
+	  <span> <%= errors[i].message %> </span><br/>
+	  <% } %>
+	</span>
+	<% } %>
+	
 	<div><%- body %></div>
       </section>
 
