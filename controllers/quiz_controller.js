@@ -16,7 +16,20 @@ exports.load = function(req, res, next, quizId) {
 
 // GET /quizes
 exports.index = function(req, res) {
-    models.Quiz.findAll().then(
+    var search = req.query.search;
+    var options = {};
+    // si el parámetro search tiene un valor asignado
+    if(search) {
+	search = search.trim(); // quitar blancos del inicio y fin
+	// sustituir blancos por %
+	// (si hay más de un blanco seguido se sustituye por un solo %)
+	search = search.replace(/\s+/g,'%');
+	search = '%' + search + '%'; // poner % al inicio y fin
+	// opciones de búsqueda
+	options = {where: {pregunta: {like: search}},
+		   order: [['pregunta', 'ASC']]};
+    }
+    models.Quiz.findAll(options).then(
 	function(quizes) {
 	    res.render('quizes/index', {quizes: quizes});
 	}
