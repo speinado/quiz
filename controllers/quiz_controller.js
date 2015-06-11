@@ -13,10 +13,13 @@ var temas = {
 
 // Autoload :id
 exports.load = function(req, res, next, quizId) {
-    models.Quiz.findById(quizId).then(
+    models.Quiz.findAll({
+	where: {id: Number(quizId)},
+	include: [{model: models.Comment}]
+    }).then(
 	function(quiz) {
 	    if(quiz) {
-		req.quiz = quiz;
+		req.quiz = quiz[0];
 		next();
 	    } else {
 		next(new Error('No existe quizId=' + quizId));
