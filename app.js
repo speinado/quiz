@@ -39,6 +39,30 @@ app.use(function(req, res, next) {
     next();
 });
 
+// auto-logout si han transcurrido 2 minutos desde la última transacción
+app.use(function(req, res, next) {
+    if(req.session.user) {
+	// guardar la hora de la última transacción en la sesión si no lo está
+	var now = new Date();
+	var timenow = now.getTime();
+	if(!req.session.lasttrans) {
+	    req.session.lasttrans = timenow;
+	} else {
+	    var timelast = req.session.lasttrans;
+	    // si no han pasado 2 minutos desde la última transacción,
+	    if((timenow - timelast) < 120000) { // se actualiza la hora de la última transacción
+	    	req.session.lasttrans = timenow;
+	    } else { // sino, se cierra la sesión
+	    	delete req.session.user;
+		delete req.session.lasttrans;
+	    	res.redirect('/login'); // redirección a la página de login
+		return;
+	    }   
+	}
+    }
+    next();
+});
+
 app.use('/', routes);
 
 // catch 404 and forward to error handler
