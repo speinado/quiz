@@ -128,3 +128,34 @@ exports.destroy = function(req, res) {
 	res.redirect('/quizes');
     }).catch(function(error){ next(error); });
 };
+
+// GET /quizes/statistics
+exports.statistics = function(req, res) {
+    var statistics = {
+	numquizes: {texto: 'Número de preguntas', info: 0},
+	numcomments: {texto: 'Número de comentarios totales', info: 0},
+	avgcomments: {texto: 'Número medio de comentarios por pregunta', info: 0},
+	withoutcomments: {texto: 'Número de preguntas sin comentarios', info: 0},
+	withcomments: {texto: 'Número de preguntas con comentarios', info: 0}
+    };
+    // número de preguntas
+    models.Quiz.count().then(function(numquizes) {
+	statistics.numquizes.info = numquizes;
+	// número de comentarios totales
+	models.Comment.count().then(function (numcomments) {
+	    statistics.numcomments.info = numcomments;
+	    // número medio de comentarios por pregunta
+	    var avgcomments = numcomments / numquizes;
+	    statistics.avgcomments.info = avgcomments.toFixed(2);
+	    // número de preguntas con comentarios
+	    models.Quiz.count({distinct: true, include: [{model: models.Comment, required: true}]}).then(function(withcomments) {
+		statistics.withcomments.info = withcomments;
+		// número de preguntas sin comentarios
+		statistics.withoutcomments.info = numquizes - withcomments;
+		// Mostrar página con las estadísticas
+		res.render('quizes/statistics', {statistics: statistics, errors: []});
+	    });
+	});
+    }).catch(function(error) { next(error); });
+    
+};
